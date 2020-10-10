@@ -77,7 +77,7 @@ impl Default for Config {
 // NOTE buffer must be word aligned.
 #[inline]
 pub fn channel(network_interface: &NetworkInterface, config: Config) -> io::Result<super::Channel> {
-    #[cfg(target_os = "freebsd")]
+    #[cfg(any(target_os = "freebsd", target_os = "illumos", target_os = "solaris"))]
     fn get_fd(_attempts: usize) -> libc::c_int {
         unsafe {
             libc::open(
@@ -119,7 +119,13 @@ pub fn channel(network_interface: &NetworkInterface, config: Config) -> io::Resu
         Ok(())
     }
 
-    #[cfg(any(target_os = "macos", target_os = "openbsd", target_os = "ios"))]
+    #[cfg(any(
+        target_os = "macos",
+        target_os = "openbsd",
+        target_os = "illumos",
+        target_os = "solaris",
+        target_os = "ios"
+    ))]
     fn set_feedback(_fd: libc::c_int) -> io::Result<()> {
         Ok(())
     }

@@ -42,7 +42,7 @@ pub fn interfaces() -> Vec<NetworkInterface> {
         let mut addr = addrs;
         while !addr.is_null() {
             let c_str = (*addr).ifa_name as *const c_char;
-            let bytes = CStr::from_ptr(c_str).to_bytes();
+            let bytes = dbg!(CStr::from_ptr(c_str)).to_bytes();
             let name = from_utf8_unchecked(bytes).to_owned();
             let (mac, ip) = sockaddr_to_network_addr((*addr).ifa_addr as *const libc::sockaddr);
             let (_, netmask) =
@@ -116,7 +116,14 @@ fn sockaddr_to_network_addr(sa: *const libc::sockaddr) -> (Option<MacAddr>, Opti
     }
 }
 
-#[cfg(any(target_os = "openbsd", target_os = "freebsd", target_os = "macos", target_os = "ios"))]
+#[cfg(any(
+    target_os = "openbsd",
+    target_os = "freebsd",
+    target_os = "illumos",
+    target_os = "solaris",
+    target_os = "macos",
+    target_os = "ios"
+))]
 fn sockaddr_to_network_addr(sa: *const libc::sockaddr) -> (Option<MacAddr>, Option<IpAddr>) {
     use bindings::bpf;
     use std::net::SocketAddr;
@@ -124,7 +131,7 @@ fn sockaddr_to_network_addr(sa: *const libc::sockaddr) -> (Option<MacAddr>, Opti
     unsafe {
         if sa.is_null() {
             (None, None)
-        } else if (*sa).sa_family as libc::c_int == bpf::AF_LINK {
+        } else if dbg!((*sa).sa_family as libc::c_int) == bpf::AF_LINK {
             let sdl: *const bpf::sockaddr_dl = mem::transmute(sa);
             let nlen = (*sdl).sdl_nlen as usize;
             let mac = MacAddr(
@@ -146,7 +153,7 @@ fn sockaddr_to_network_addr(sa: *const libc::sockaddr) -> (Option<MacAddr>, Opti
             match addr {
                 Ok(SocketAddr::V4(sa)) => (None, Some(IpAddr::V4(*sa.ip()))),
                 Ok(SocketAddr::V6(sa)) => (None, Some(IpAddr::V6(*sa.ip()))),
-                Err(_) => (None, None),
+                Err(e) => { dbg!(e); (None, None) },
             }
         }
     }

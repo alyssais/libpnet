@@ -55,7 +55,14 @@ pub const DLT_NULL: libc::c_uint = 0;
 
 #[cfg(target_os = "freebsd")]
 const BPF_ALIGNMENT: libc::c_int = SIZEOF_C_LONG;
-#[cfg(any(target_os = "openbsd", target_os = "macos", target_os = "ios", windows))]
+#[cfg(any(
+    target_os = "openbsd",
+    target_os = "illumos",
+    target_os = "solaris",
+    target_os = "macos",
+    target_os = "ios",
+    windows
+))]
 const BPF_ALIGNMENT: libc::c_int = 4;
 
 pub fn BPF_WORDALIGN(x: isize) -> isize {
@@ -73,7 +80,14 @@ pub struct ifreq {
 // sdl_data does not match if_dl.h on OS X, since the size of 12 is a minimum.
 // Will be unsafe
 // when sdl_nlen > 40.
-#[cfg(any(target_os = "openbsd", target_os = "freebsd", target_os = "macos", target_os = "ios"))]
+#[cfg(any(
+    target_os = "openbsd",
+    target_os = "freebsd",
+    target_os = "illumos",
+    target_os = "solaris",
+    target_os = "macos",
+    target_os = "ios"
+))]
 pub struct sockaddr_dl {
     pub sdl_len: libc::c_uchar,
     pub sdl_family: libc::c_uchar,
@@ -105,7 +119,12 @@ pub struct timeval32 {
 
 #[cfg(any(
     target_os = "openbsd",
-    all(any(target_os = "macos", target_os = "ios"), target_pointer_width = "64")
+    target_os = "illumos",
+    target_os = "solaris",
+    all(
+        any(target_os = "macos", target_os = "ios"),
+        target_pointer_width = "64"
+    )
 ))]
 pub struct bpf_hdr {
     pub bh_tstamp: timeval32,

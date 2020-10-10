@@ -303,7 +303,7 @@ fn layer3_ipv4() {
         Err(e) => panic!("layer3_ipv4_test failed: {}", e),
     }
 
-    assert!(res.join().is_ok())
+    assert!(dbg!(res.join()).is_ok())
 }
 
 #[cfg(windows)]

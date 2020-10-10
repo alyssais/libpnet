@@ -42,7 +42,14 @@ pub mod linux;
 
 #[cfg(all(
     not(feature = "netmap"),
-    any(target_os = "freebsd", target_os = "openbsd", target_os = "macos", target_os = "ios")
+    any(
+        target_os = "freebsd",
+        target_os = "openbsd",
+        target_os = "illumos",
+        target_os = "solaris",
+        target_os = "macos",
+        target_os = "ios"
+    )
 ))]
 #[path = "bpf.rs"]
 mod backend;
@@ -218,7 +225,7 @@ pub struct NetworkInterface {
     /// IP addresses and netmasks for the interface.
     pub ips: Vec<IpNetwork>,
     /// Operating system specific flags for the interface.
-    pub flags: u32,
+    pub flags: u64,
 }
 
 impl NetworkInterface {
@@ -232,20 +239,20 @@ impl NetworkInterface {
     }
 
     pub fn is_up(&self) -> bool {
-        self.flags & (pnet_sys::IFF_UP as u32) != 0
+        self.flags & (pnet_sys::IFF_UP as u64) != 0
     }
     pub fn is_broadcast(&self) -> bool {
-        self.flags & (pnet_sys::IFF_BROADCAST as u32) != 0
+        self.flags & (pnet_sys::IFF_BROADCAST as u64) != 0
     }
     /// Is the interface a loopback interface?
     pub fn is_loopback(&self) -> bool {
-        self.flags & (pnet_sys::IFF_LOOPBACK as u32) != 0
+        self.flags & (pnet_sys::IFF_LOOPBACK as u64) != 0
     }
     pub fn is_point_to_point(&self) -> bool {
-        self.flags & (pnet_sys::IFF_POINTOPOINT as u32) != 0
+        self.flags & (pnet_sys::IFF_POINTOPOINT as u64) != 0
     }
     pub fn is_multicast(&self) -> bool {
-        self.flags & (pnet_sys::IFF_MULTICAST as u32) != 0
+        self.flags & (pnet_sys::IFF_MULTICAST as u64) != 0
     }
 }
 
